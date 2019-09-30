@@ -7,12 +7,14 @@ export const latestReleasesInfoUrl = `${baseApiUrl}/latest/info`;
 
 export const getInfo = (url: string): Promise<any> => {
     const promise = new Promise((resolve, reject) => {
-        Axios.get(url)
-            .then((response) => resolve(response.data))
-            .catch((error: AxiosError) => {
-                reject(error);
-                alert(getMessageError(error));
-            })
+        setTimeout(() => {
+            Axios.get(url)
+                .then((response) => resolve(response.data))
+                .catch((error: AxiosError) => {
+                    reject(error);
+                    alert(getMessageError(error));
+                });
+        }, 1500);
     });
     return promise;
 }

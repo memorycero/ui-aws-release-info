@@ -17,6 +17,15 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { mainListItems } from './listItems';
 import {HotelEditionContainer} from '../../pods/release-panel/release-board.container';
 
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+        Powered by Team Blinky
+      {'.'}
+    </Typography>
+  );
+}
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
@@ -124,7 +133,7 @@ export default function Dashboard() {
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Dashboard
+            Release Board (Beta)
           </Typography>
         </Toolbar>
       </AppBar>
@@ -150,6 +159,7 @@ export default function Dashboard() {
             <HotelEditionContainer/>
           </Grid>
         </Container>
+        <Copyright/>
       </main>
     </div>
   );
