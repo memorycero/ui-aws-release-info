@@ -3,14 +3,14 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import { BuildInfo } from "./release.vm";
+import { BoardBuildInfo } from "./release.vm";
 import { BuildCardComponent } from "./components/build-card.component";
 
 interface Props {
-  inPreparation: BuildInfo[],
-  testingOnTestServer: BuildInfo[],
-  deployingLive: BuildInfo[],
-  approved: BuildInfo[],
+  inPreparation: BoardBuildInfo[],
+  testingOnTestServer: BoardBuildInfo[],
+  deployingLive: BoardBuildInfo[],
+  approved: BoardBuildInfo[],
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,9 +31,10 @@ export const ReleaseBoardComponent = (props: Props) => {
 
   return (
     <>
+      {/* Headers */}
       {headerInfoComponent('In Preparation', classes.paper)}
       {headerInfoComponent('www1', classes.paper)}
-      {headerInfoComponent(' Live Deployment', classes.paper)}
+      {headerInfoComponent('Live Deployment', classes.paper)}
       {headerInfoComponent('Approved', classes.paper)}
       {/* In Preparation */}
       {buildInfoComponent(inPreparation)}
@@ -65,15 +66,9 @@ function buildInfoComponent(builds) {
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
-        {builds.map(elem => (
-          <div key={elem.id}>
-            <BuildCardComponent rt={elem.rt}
-              team={elem.team}
-              branch={elem.branch}
-              status={elem.status}
-              step={elem.step}
-              id={elem.id}
-              build={elem.build} />
+        {builds.map(value => (
+          <div key={value.buildHeader.rt}>
+            <BuildCardComponent buildHeader={value.buildHeader} buildsSteps={value.buildsSteps}/>
             <br />
           </div>
         ))}

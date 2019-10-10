@@ -9,13 +9,12 @@ interface Props {
 
 export const LoadingSpinerComponent = (props: Props) => {
     const { promiseInProgress } = usePromiseTracker();
-
     return (
         <>
             {
                 (promiseInProgress === true) ?
                     <div className="spinner">
-                        <Loader type="ThreeDots" color="#2BAD60" />
+                        <Loader type="ThreeDots" color="#2BAD60" height={80} width={110}/>
                     </div>
                     :
                     props.children

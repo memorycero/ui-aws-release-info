@@ -9,12 +9,6 @@ export const mainListItems = (
   <div>
     <ListItem button>
       <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
         <DeveloperBoard />
       </ListItemIcon>
       <ListItemText primary="Release board" />

@@ -1,21 +1,21 @@
 import * as React from "react";
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
+import Grid from '@material-ui/core/Grid';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import { IconButton } from "@material-ui/core";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import WarningIcon from '@material-ui/icons/Warning';
+import { BoardBuildInfo, BuildInfoVm, BuildHeader } from "../release.vm";
 
 interface Props {
-  rt: string,
-  team: string,
-  branch?: string,
-  status?: string,
-  step?: string,
-  id?: number,
-  build?: string
+  buildHeader: BuildHeader;
+  buildsSteps?: BuildInfoVm[];
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -23,13 +23,9 @@ const useStyles = makeStyles((theme: Theme) =>
     title: {
       fontSize: 14,
     },
-    pos: {
-      marginBottom: 12,
-    },
     avatar: {
-      margin: 10,
-      width: 50,
-      height: 50,
+      width: 60,
+      height: 60,
     },
     expand: {
       transform: 'rotate(0deg)',
@@ -45,11 +41,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const BuildCardComponent = (props: Props) => {
-  const { rt, team } = props;
+  const { buildHeader, buildsSteps } = props;
   const classes = useStyles({});
   const [expanded, setExpanded] = React.useState(false);
 
-  const teamLowerCase = team.toLowerCase();
+  const teamLowerCase = buildHeader.team.toLowerCase();
   const teamLogo = require(`../../../icons/teams-icons/${teamLowerCase}-icon.png`);
 
   const handleExpandClick = () => {
@@ -59,29 +55,80 @@ export const BuildCardComponent = (props: Props) => {
   return (
     <Card>
       <CardContent>
-        <img alt="Team Icon" src={teamLogo} className={classes.avatar} />
-        <Typography variant="h5" component="h2">
-          {team}
-        </Typography>
-        <Typography className={classes.title} color="textSecondary" gutterBottom>
-          {rt}
-        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={4}>
+            <img alt="Team Icon" src={teamLogo} className={classes.avatar} />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="h5" component="h2">
+              {buildHeader.team}
+            </Typography>
+            <Typography className={classes.title} color="textSecondary" gutterBottom>
+              {buildHeader.rt}
+            </Typography>
+            <Grid item container spacing={2}>
+              <Grid item xs={7}>
+                <Typography variant="h6">
+                  Status:
+                </Typography>
+              </Grid>
+              <Grid item xs={3}>
+                {renderStatusComponent(buildHeader.status)}
+              </Grid>
+            </Grid>
+          </Grid>
+          <div>
+            {buildsSteps !== undefined
+              ?
+              <Grid item xs={12}>
+                <IconButton
+                  className={clsx(classes.expand, {
+                    [classes.expandOpen]: expanded,
+                  })}
+                  onClick={handleExpandClick}
+                  aria-expanded={expanded}
+                  aria-label="show more"
+                >
+                  <ExpandMoreIcon />
+                </IconButton>
+                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                  <CardContent>
+                    {buildsSteps.map((elem: BuildInfoVm) => (
+                      <div key={elem.id}>
+                        <Grid item container spacing={2}>
+                          <Grid item xs={7}>
+                            <Typography variant="h6">
+                              {elem.step}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={3}>
+                            {renderStatusComponent(elem.status)}
+                          </Grid>
+                        </Grid>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Collapse>
+              </Grid>
+              :
+              <div />
+            }
+          </div>
+        </Grid>
       </CardContent>
-      <IconButton
-        className={clsx(classes.expand, {
-          [classes.expandOpen]: expanded,
-        })}
-        onClick={handleExpandClick}
-        aria-expanded={expanded}
-        aria-label="show more"
-      >
-        <ExpandMoreIcon />
-      </IconButton>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>All steps...Soon !</Typography>
-        </CardContent>
-      </Collapse>
     </Card>
   );
+}
+
+function renderStatusComponent(status) {
+  return (
+    <>
+      {'SUCCESS' === status
+        ?
+        <CheckCircleIcon htmlColor='green' />
+        :
+        <ErrorIcon htmlColor='red' />
+      }
+    </>
+  )
 }
