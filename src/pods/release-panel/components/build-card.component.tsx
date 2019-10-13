@@ -45,9 +45,7 @@ export const BuildCardComponent = (props: Props) => {
   const { buildHeader, buildsSteps } = props;
   const classes = useStyles({});
   const [expanded, setExpanded] = React.useState(false);
-
-  const teamLowerCase = buildHeader.team.toLowerCase();
-  const teamLogo = require(`../../../icons/teams-icons/${teamLowerCase}-icon.png`);
+  const teamLogo = getTeamIconPath(buildHeader.team);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -124,12 +122,23 @@ export const BuildCardComponent = (props: Props) => {
 const returnStatusComponent = (status: string) => {
   switch (status) {
     case 'SUCCESS':
-      return <CheckCircleIcon htmlColor='green'/>;
+      return <CheckCircleIcon htmlColor='green' />;
     case 'FAILURE':
       return <ErrorIcon htmlColor='red'/>;
     case 'WARN':
-      return <WarningIcon htmlColor='yellow'/>;
+      return <WarningIcon htmlColor='orange' />;
     default:
-      return <HelpIcon htmlColor='blue'/>;
+      return <HelpIcon htmlColor='grey' />;
+  }
+}
+
+const getTeamIconPath = (teamName: string): string => {
+  try {
+    const teamLowerCase = teamName.toLowerCase();
+    return require(`../../../icons/teams-icons/${teamLowerCase}-icon.png`);
+  }
+  catch (error) {
+    console.error(`Team name: ${teamName} doesn't exist.`);
+    return require(`../../../icons/teams-icons/default-icon.png`);
   }
 }
