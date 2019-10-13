@@ -5,12 +5,13 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import { BoardReleaseInfo } from "./release.vm";
 import { BuildCardComponent } from "./components/build-card.component";
+import { orderBy } from "lodash";
 
 interface Props {
-  inPreparation: BoardReleaseInfo[],
-  testingOnTestServer: BoardReleaseInfo[],
-  deployingLive: BoardReleaseInfo[],
-  approved: BoardReleaseInfo[],
+  releasesInPreparation: BoardReleaseInfo[],
+  releasesOnWww1: BoardReleaseInfo[],
+  releasesLive: BoardReleaseInfo[],
+  releasesApproved: BoardReleaseInfo[]
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const ReleaseBoardComponent = (props: Props) => {
-  const { inPreparation, testingOnTestServer, deployingLive, approved } = props;
+  const { releasesInPreparation, releasesOnWww1, releasesLive, releasesApproved } = props;
   const classes = useStyles({});
 
   return (
@@ -36,14 +37,14 @@ export const ReleaseBoardComponent = (props: Props) => {
       {buildHeaderComponent('www1', classes.paper)}
       {buildHeaderComponent('Live Deployment', classes.paper)}
       {buildHeaderComponent('Approved', classes.paper)}
-      {/* In Preparation */}
-      {buildReleaseComponent(inPreparation)}
-      {/* WWW1 */}
-      {buildReleaseComponent(testingOnTestServer)}
-      {/* Live Deploy */}
-      {buildReleaseComponent(deployingLive)}
-      {/* Approved */}
-      {buildReleaseComponent(approved)}
+      {/* In Preparation queue */}
+      {buildReleaseComponent(releasesInPreparation, 'asc')}
+      {/* WWW1 queue */}
+      {buildReleaseComponent(releasesOnWww1, 'asc')}
+      {/* Live Deploy queue */}
+      {buildReleaseComponent(releasesLive, 'asc')}
+      {/* Approved queue */}
+      {buildReleaseComponent(releasesApproved, 'desc')}
     </>
   )
 }
@@ -62,11 +63,11 @@ const buildHeaderComponent = (stepName: string, paperClassName: string) => {
   )
 }
 
-const buildReleaseComponent = (releases: BoardReleaseInfo[]) => {
+const buildReleaseComponent = (releases: BoardReleaseInfo[], order) => {
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
-        {releases.map(value => (
+        {orderBy(releases, ['releaseHeader.rt'], order).map(value => (
           <div key={value.releaseHeader.rt}>
             <BuildCardComponent buildHeader={value.releaseHeader} buildsSteps={value.releaseSteps} />
             <br />

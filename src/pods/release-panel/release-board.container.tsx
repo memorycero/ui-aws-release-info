@@ -5,62 +5,92 @@ import { getInfo, lastWeekReleasesInfoUrl, upcomingReleaseInfoUrl, releaseInfoUr
 import { mapBuildsFromApiToVm, mapBuildFromApiToVm } from "./release-board.mapper";
 import { trackPromise } from "react-promise-tracker";
 import { LoadingSpinerComponent } from "components/spinner";
-import { orderBy, map } from "lodash";
+import { orderBy } from "lodash";
 import { SessionContext } from "core";
 
 export const ReleaseBoardContainer = () => {
-    const [inPreparation, setInPreparation] = React.useState([]);
-    const [testingOnTestServer, setTestingOnTestServer] = React.useState([]);
-    const [deployingLive, setDeployingLive] = React.useState([]);
-    const [approved, setApproved] = React.useState([]);
+    const [releasesInPreparation, setReleasesInPreparation] = React.useState([]);
+    const [releasesOnWww1, setReleasesOnWww1] = React.useState([]);
+    const [releasesLive, setReleasesLive] = React.useState([]);
+    const [releasesApproved, setReleasesApproved] = React.useState([]);
+
+    const [isSubscribed, setIsSuscribed] = React.useState(true);
 
     const sessionContext = React.useContext(SessionContext);
-    const [timeout] = React.useState(sessionContext.refreshTimeout);
+    const [refreshTime] = React.useState(sessionContext.refreshTimeout);
+
+    const initData = () => {
+        setReleasesInPreparation([]);
+        setReleasesOnWww1([]);
+        setReleasesLive([]);
+        setReleasesApproved([]);
+    }
 
     const loadReleasesInfo = () => {
+        initData();
         trackPromise(getInfo(upcomingReleaseInfoUrl).then(result => {
-
             let upcomingReleases: BuildInfoVm[] = mapBuildsFromApiToVm(result.upcoming);
 
             upcomingReleases.map(elem => {
-                trackPromise(getInfo(`${releaseInfoUrl}/${elem.rt}`).then(result => {
-                    let releaseSteps: BuildInfoVm[] = mapBuildsFromApiToVm(result.Items);
-                    let boardReleaseInfo: BoardReleaseInfo = createBoardBuildInfo(releaseSteps);
-                    if (boardReleaseInfo.releaseHeader.lastStep === ReleaseSteps.DeployTestSystem) {
-                        testingOnTestServer.push(boardReleaseInfo);
-                    } else {
-                        inPreparation.push(boardReleaseInfo);
-                    }
-                }));
+                if (isSubscribed) {
+                    trackPromise(getInfo(`${releaseInfoUrl}/${elem.rt}`).then(result => {
+                        if (isSubscribed) {
+                            let releaseSteps: BuildInfoVm[] = mapBuildsFromApiToVm(result.Items);
+                            let boardReleaseInfo: BoardReleaseInfo = createBoardReleaseInfo(releaseSteps);
+                            if (boardReleaseInfo.releaseHeader.lastStep === ReleaseSteps.DeployTestSystem) {
+                                setReleasesOnWww1(releasesOnWww1 => [...releasesOnWww1, boardReleaseInfo]);
+                            } else {
+                                setReleasesInPreparation(releasesInPreparation => [...releasesInPreparation, boardReleaseInfo]);
+                            }
+                        }
+                    }));
+
+                }
             });
+
             let deployingLiveBuild: BuildInfoVm = mapBuildFromApiToVm(result);
             if (deployingLiveBuild !== undefined && deployingLiveBuild.status === 'Live Deploy') {
-                trackPromise(getInfo(`${releaseInfoUrl}/${deployingLiveBuild.rt}`).then(result => {
-                    let releaseSteps: BuildInfoVm[] = mapBuildsFromApiToVm(result.Items);
-                    let boardReleaseInfo: BoardReleaseInfo = createBoardBuildInfo(releaseSteps);
-                    deployingLive.push(boardReleaseInfo);
-                }));
+                if (isSubscribed) {
+                    trackPromise(getInfo(`${releaseInfoUrl}/${deployingLiveBuild.rt}`).then(result => {
+                        let releaseSteps: BuildInfoVm[] = mapBuildsFromApiToVm(result.Items);
+                        let boardReleaseInfo: BoardReleaseInfo = createBoardReleaseInfo(releaseSteps);
+                        setReleasesLive(releasesLive => [...releasesLive, boardReleaseInfo]);
+                    }
+                    ));
+                }
             }
-        }));
+        }
+        ));
 
-        trackPromise(getInfo(lastWeekReleasesInfoUrl).then(result => {
-            let approvedReleases: BoardReleaseInfo[] = getOnlyApprovedReleases(mapBuildsFromApiToVm(result.Items));
-            setApproved(approvedReleases);
-        }));
+        if (isSubscribed) {
+            trackPromise(getInfo(lastWeekReleasesInfoUrl).then(result => {
+                let approvedReleases: BoardReleaseInfo[] = getOnlyApprovedReleases(mapBuildsFromApiToVm(result.Items));
+                setReleasesApproved(approvedReleases);
+            }
+            ));
+        }
     }
 
     React.useEffect(() => {
         loadReleasesInfo();
-    }, []);
+        let customInterval = setInterval(() => {
+            loadReleasesInfo();
+        }, refreshTime);
+        return () => {
+            //Cleanup
+            setIsSuscribed(false);
+            clearInterval(customInterval)
+        };
+    }, [refreshTime]);
 
     return (
         <>
             <LoadingSpinerComponent>
                 <ReleaseBoardComponent
-                    inPreparation={inPreparation}
-                    testingOnTestServer={testingOnTestServer}
-                    deployingLive={deployingLive}
-                    approved={approved}
+                    releasesInPreparation={releasesInPreparation}
+                    releasesOnWww1={releasesOnWww1}
+                    releasesLive={releasesLive}
+                    releasesApproved={releasesApproved}
                 />
             </LoadingSpinerComponent>
         </>
@@ -83,7 +113,7 @@ const getOnlyApprovedReleases = (builds: BuildInfoVm[]): BoardReleaseInfo[] => {
     return result;
 }
 
-const createBoardBuildInfo = (builds: BuildInfoVm[]): BoardReleaseInfo => {
+const createBoardReleaseInfo = (builds: BuildInfoVm[]): BoardReleaseInfo => {
     let stepsMap = new Map<ReleaseSteps, BuildInfoVm>();
 
     orderBy(builds, ['build'], ['asc']).map(elem => {
@@ -92,17 +122,24 @@ const createBoardBuildInfo = (builds: BuildInfoVm[]): BoardReleaseInfo => {
 
     let releaseSteps: BuildInfoVm[] = orderBy([...stepsMap.values()], ['build'], ['desc']);
 
-    const releaseLastStep = releaseSteps[0];
+    const lastStep = releaseSteps[0];
 
     let releaseHeader: ReleaseHeader = {
-        rt: releaseLastStep.rt,
-        team: releaseLastStep.team,
-        status: releaseLastStep.status,
-        lastStep: releaseLastStep.step
+        rt: lastStep.rt,
+        team: lastStep.team,
+        status: getLastStepStatus(lastStep),
+        lastStep: lastStep.step
     }
 
     return {
         releaseHeader,
         releaseSteps
     }
+}
+
+const getLastStepStatus = (lastStep: BuildInfoVm): string => {
+    if (lastStep.step === ReleaseSteps.IntegrationLatestDump && lastStep.status === 'FAILURE') {
+        return 'WARN';
+    }
+    return lastStep.status;
 }

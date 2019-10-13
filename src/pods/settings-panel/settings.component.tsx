@@ -68,10 +68,12 @@ export const SettingsComponent = (props: Props) => {
     const { refreshTimeout, updateRefreshTimeout } = props;
     const classes = useStyles({});
 
-    const [selectedOption] = React.useState(refreshTimeout);
+    const [selectedOption, setSelectedOption] = React.useState(refreshTimeout);
 
-    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) =>
+    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setSelectedOption(event.target.value as number);
         updateRefreshTimeout(event.target.value as number);
+    }
 
     return (
         <>

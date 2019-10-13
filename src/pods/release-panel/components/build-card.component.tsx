@@ -11,6 +11,7 @@ import Collapse from '@material-ui/core/Collapse';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import WarningIcon from '@material-ui/icons/Warning';
+import HelpIcon from '@material-ui/icons/Help';
 import { BuildInfoVm, ReleaseHeader } from "../release.vm";
 
 interface Props {
@@ -73,7 +74,7 @@ export const BuildCardComponent = (props: Props) => {
                 </Typography>
               </Grid>
               <Grid item xs={3}>
-                {renderStatusComponent(buildHeader.status)}
+                {returnStatusComponent(buildHeader.status)}
               </Grid>
             </Grid>
           </Grid>
@@ -102,7 +103,7 @@ export const BuildCardComponent = (props: Props) => {
                             </Typography>
                           </Grid>
                           <Grid item xs={3}>
-                            {renderStatusComponent(elem.status)}
+                            {returnStatusComponent(elem.status)}
                           </Grid>
                         </Grid>
                       </div>
@@ -120,15 +121,15 @@ export const BuildCardComponent = (props: Props) => {
   );
 }
 
-function renderStatusComponent(status) {
-  return (
-    <>
-      {'SUCCESS' === status
-        ?
-        <CheckCircleIcon htmlColor='green' />
-        :
-        <ErrorIcon htmlColor='red' />
-      }
-    </>
-  )
+const returnStatusComponent = (status: string) => {
+  switch (status) {
+    case 'SUCCESS':
+      return <CheckCircleIcon htmlColor='green'/>;
+    case 'FAILURE':
+      return <ErrorIcon htmlColor='red'/>;
+    case 'WARN':
+      return <WarningIcon htmlColor='yellow'/>;
+    default:
+      return <HelpIcon htmlColor='blue'/>;
+  }
 }
