@@ -1,4 +1,4 @@
-import { BuildInfoVm, ReleaseStep } from "./release.vm";
+import { BuildInfoVm, ReleaseSteps } from "./release.vm";
 import { BuildInfoApi } from "api/amazonaws.api";
 
 export const mapBuildsFromApiToVm = (buildsApi: BuildInfoApi[]): BuildInfoVm[] => {
@@ -19,24 +19,24 @@ export const mapBuildFromApiToVm = (buildsApi: BuildInfoApi): BuildInfoVm => {
     };
 };
 
-function getEnumValue(enumValue) {
-    switch (enumValue) {
+const getEnumValue = (stringValue:string):ReleaseSteps => {
+    switch (stringValue) {
         case "Start Release":
-            return ReleaseStep.StartRelease;
+            return ReleaseSteps.StartRelease;
         case "Build":
-            return ReleaseStep.Build;
+            return ReleaseSteps.Build;
         case "Integration Tests":
-            return ReleaseStep.IntegrationTests;
+            return ReleaseSteps.IntegrationTests;
         case "Integration Tests with Latest Dump":
-            return ReleaseStep.IntegrationLatestDump;
+            return ReleaseSteps.IntegrationLatestDump;
         case "Deploy Testsystem":
-            return ReleaseStep.DeployTestSystem;
+            return ReleaseSteps.DeployTestSystem;
         case "Live Deploy":
-            return ReleaseStep.Live;
+            return ReleaseSteps.Live;
         case "Approve":
-            return ReleaseStep.Approve;
+            return ReleaseSteps.Approve;
         case "Cancel":
-            return ReleaseStep.Cancel;
+            return ReleaseSteps.Cancel;
         default:
             return null;
     }

@@ -1,19 +1,23 @@
 import * as React from "react";
 import { ReleaseBoardComponent } from "./release-board.component";
-import { BuildInfoVm, ReleaseStep, BoardBuildInfo, BuildHeader } from "./release.vm";
+import { BuildInfoVm, ReleaseSteps, BoardReleaseInfo, ReleaseHeader } from "./release.vm";
 import { getInfo, lastWeekReleasesInfoUrl, upcomingReleaseInfoUrl, releaseInfoUrl } from '../../api/amazonaws.api'
 import { mapBuildsFromApiToVm, mapBuildFromApiToVm } from "./release-board.mapper";
 import { trackPromise } from "react-promise-tracker";
 import { LoadingSpinerComponent } from "components/spinner";
 import { orderBy, map } from "lodash";
+import { SessionContext } from "core";
 
-export const HotelEditionContainer = () => {
+export const ReleaseBoardContainer = () => {
     const [inPreparation, setInPreparation] = React.useState([]);
     const [testingOnTestServer, setTestingOnTestServer] = React.useState([]);
     const [deployingLive, setDeployingLive] = React.useState([]);
     const [approved, setApproved] = React.useState([]);
 
-    const loadReleaseInfo = () => {
+    const sessionContext = React.useContext(SessionContext);
+    const [timeout] = React.useState(sessionContext.refreshTimeout);
+
+    const loadReleasesInfo = () => {
         trackPromise(getInfo(upcomingReleaseInfoUrl).then(result => {
 
             let upcomingReleases: BuildInfoVm[] = mapBuildsFromApiToVm(result.upcoming);
@@ -21,11 +25,11 @@ export const HotelEditionContainer = () => {
             upcomingReleases.map(elem => {
                 trackPromise(getInfo(`${releaseInfoUrl}/${elem.rt}`).then(result => {
                     let releaseSteps: BuildInfoVm[] = mapBuildsFromApiToVm(result.Items);
-                    let boardInfo: BoardBuildInfo = createBoardBuildInfo(releaseSteps)
-                    if (boardInfo.buildHeader.lastStep === ReleaseStep.DeployTestSystem) {
-                        testingOnTestServer.push(boardInfo);
+                    let boardReleaseInfo: BoardReleaseInfo = createBoardBuildInfo(releaseSteps);
+                    if (boardReleaseInfo.releaseHeader.lastStep === ReleaseSteps.DeployTestSystem) {
+                        testingOnTestServer.push(boardReleaseInfo);
                     } else {
-                        inPreparation.push(boardInfo);
+                        inPreparation.push(boardReleaseInfo);
                     }
                 }));
             });
@@ -33,20 +37,20 @@ export const HotelEditionContainer = () => {
             if (deployingLiveBuild !== undefined && deployingLiveBuild.status === 'Live Deploy') {
                 trackPromise(getInfo(`${releaseInfoUrl}/${deployingLiveBuild.rt}`).then(result => {
                     let releaseSteps: BuildInfoVm[] = mapBuildsFromApiToVm(result.Items);
-                    let boardInfo: BoardBuildInfo = createBoardBuildInfo(releaseSteps)
-                    deployingLive.push(boardInfo);
+                    let boardReleaseInfo: BoardReleaseInfo = createBoardBuildInfo(releaseSteps);
+                    deployingLive.push(boardReleaseInfo);
                 }));
             }
         }));
 
         trackPromise(getInfo(lastWeekReleasesInfoUrl).then(result => {
-            let approvedReleases: BoardBuildInfo[] = getOnlyApprovedReleases(mapBuildsFromApiToVm(result.Items));
+            let approvedReleases: BoardReleaseInfo[] = getOnlyApprovedReleases(mapBuildsFromApiToVm(result.Items));
             setApproved(approvedReleases);
         }));
     }
 
     React.useEffect(() => {
-        loadReleaseInfo();
+        loadReleasesInfo();
     }, []);
 
     return (
@@ -63,34 +67,34 @@ export const HotelEditionContainer = () => {
     )
 }
 
-const getOnlyApprovedReleases = (builds: BuildInfoVm[]): BoardBuildInfo[] => {
-    let result: BoardBuildInfo[] = [];
-    orderBy(builds, ['build'], ['desc']).filter(build => build.step === ReleaseStep.Approve).map(build => {
-        let buildHeader: BuildHeader = {
+const getOnlyApprovedReleases = (builds: BuildInfoVm[]): BoardReleaseInfo[] => {
+    let result: BoardReleaseInfo[] = [];
+    orderBy(builds, ['build'], ['desc']).filter(build => build.step === ReleaseSteps.Approve).map(build => {
+        let releaseHeader: ReleaseHeader = {
             rt: build.rt,
             team: build.team,
             status: build.status,
             lastStep: build.step
         }
         result.push({
-            buildHeader
+            releaseHeader
         })
     })
     return result;
 }
 
-const createBoardBuildInfo = (builds: BuildInfoVm[]): BoardBuildInfo => {
-    let stepsMap = new Map<ReleaseStep, BuildInfoVm>();
+const createBoardBuildInfo = (builds: BuildInfoVm[]): BoardReleaseInfo => {
+    let stepsMap = new Map<ReleaseSteps, BuildInfoVm>();
 
     orderBy(builds, ['build'], ['asc']).map(elem => {
         stepsMap.set(elem.step, elem);
     });
 
-    let buildsSteps: BuildInfoVm[] = orderBy([...stepsMap.values()], ['build'], ['desc']);
+    let releaseSteps: BuildInfoVm[] = orderBy([...stepsMap.values()], ['build'], ['desc']);
 
-    const releaseLastStep = buildsSteps[0];
+    const releaseLastStep = releaseSteps[0];
 
-    let buildHeader: BuildHeader = {
+    let releaseHeader: ReleaseHeader = {
         rt: releaseLastStep.rt,
         team: releaseLastStep.team,
         status: releaseLastStep.status,
@@ -98,7 +102,7 @@ const createBoardBuildInfo = (builds: BuildInfoVm[]): BoardBuildInfo => {
     }
 
     return {
-        buildHeader,
-        buildsSteps
+        releaseHeader,
+        releaseSteps
     }
 }

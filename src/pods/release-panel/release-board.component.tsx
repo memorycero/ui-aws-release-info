@@ -3,14 +3,14 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import { BoardBuildInfo } from "./release.vm";
+import { BoardReleaseInfo } from "./release.vm";
 import { BuildCardComponent } from "./components/build-card.component";
 
 interface Props {
-  inPreparation: BoardBuildInfo[],
-  testingOnTestServer: BoardBuildInfo[],
-  deployingLive: BoardBuildInfo[],
-  approved: BoardBuildInfo[],
+  inPreparation: BoardReleaseInfo[],
+  testingOnTestServer: BoardReleaseInfo[],
+  deployingLive: BoardReleaseInfo[],
+  approved: BoardReleaseInfo[],
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -32,29 +32,29 @@ export const ReleaseBoardComponent = (props: Props) => {
   return (
     <>
       {/* Headers */}
-      {headerInfoComponent('In Preparation', classes.paper)}
-      {headerInfoComponent('www1', classes.paper)}
-      {headerInfoComponent('Live Deployment', classes.paper)}
-      {headerInfoComponent('Approved', classes.paper)}
+      {buildHeaderComponent('In Preparation', classes.paper)}
+      {buildHeaderComponent('www1', classes.paper)}
+      {buildHeaderComponent('Live Deployment', classes.paper)}
+      {buildHeaderComponent('Approved', classes.paper)}
       {/* In Preparation */}
-      {buildInfoComponent(inPreparation)}
+      {buildReleaseComponent(inPreparation)}
       {/* WWW1 */}
-      {buildInfoComponent(testingOnTestServer)}
-      {/* Live deployment */}
-      {buildInfoComponent(deployingLive)}
+      {buildReleaseComponent(testingOnTestServer)}
+      {/* Live Deploy */}
+      {buildReleaseComponent(deployingLive)}
       {/* Approved */}
-      {buildInfoComponent(approved)}
+      {buildReleaseComponent(approved)}
     </>
   )
 }
 
-function headerInfoComponent(nameStep, paperClassName) {
+const buildHeaderComponent = (stepName:string, paperClassName: string) => {
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
         <Paper className={paperClassName}>
-          <Typography component="h3" variant="h6" color="primary" gutterBottom>
-            {nameStep}
+          <Typography variant="h6" color="primary" gutterBottom>
+            {stepName}
           </Typography>
         </Paper>
       </Grid>
@@ -62,13 +62,13 @@ function headerInfoComponent(nameStep, paperClassName) {
   )
 }
 
-function buildInfoComponent(builds) {
+const buildReleaseComponent = (releases:BoardReleaseInfo[]) => {
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
-        {builds.map(value => (
-          <div key={value.buildHeader.rt}>
-            <BuildCardComponent buildHeader={value.buildHeader} buildsSteps={value.buildsSteps}/>
+        {releases.map(value => (
+          <div key={value.releaseHeader.rt}>
+            <BuildCardComponent buildHeader={value.releaseHeader} buildsSteps={value.releaseSteps}/>
             <br />
           </div>
         ))}

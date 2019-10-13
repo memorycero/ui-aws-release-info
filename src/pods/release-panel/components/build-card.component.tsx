@@ -11,10 +11,10 @@ import Collapse from '@material-ui/core/Collapse';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import WarningIcon from '@material-ui/icons/Warning';
-import { BoardBuildInfo, BuildInfoVm, BuildHeader } from "../release.vm";
+import { BuildInfoVm, ReleaseHeader } from "../release.vm";
 
 interface Props {
-  buildHeader: BuildHeader;
+  buildHeader: ReleaseHeader;
   buildsSteps?: BuildInfoVm[];
 }
 
@@ -96,9 +96,9 @@ export const BuildCardComponent = (props: Props) => {
                     {buildsSteps.map((elem: BuildInfoVm) => (
                       <div key={elem.id}>
                         <Grid item container spacing={2}>
-                          <Grid item xs={7}>
-                            <Typography variant="h6">
-                              {elem.step}
+                          <Grid item xs={9}>
+                            <Typography variant="body1">
+                              {elem.step}:
                             </Typography>
                           </Grid>
                           <Grid item xs={3}>
