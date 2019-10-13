@@ -48,7 +48,7 @@ export const ReleaseBoardComponent = (props: Props) => {
   )
 }
 
-const buildHeaderComponent = (stepName:string, paperClassName: string) => {
+const buildHeaderComponent = (stepName: string, paperClassName: string) => {
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
@@ -62,13 +62,13 @@ const buildHeaderComponent = (stepName:string, paperClassName: string) => {
   )
 }
 
-const buildReleaseComponent = (releases:BoardReleaseInfo[]) => {
+const buildReleaseComponent = (releases: BoardReleaseInfo[]) => {
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
         {releases.map(value => (
           <div key={value.releaseHeader.rt}>
-            <BuildCardComponent buildHeader={value.releaseHeader} buildsSteps={value.releaseSteps}/>
+            <BuildCardComponent buildHeader={value.releaseHeader} buildsSteps={value.releaseSteps} />
             <br />
           </div>
         ))}

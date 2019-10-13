@@ -5,9 +5,9 @@ import { SessionProvider } from "core";
 
 ReactDOM.render(
   <>
-  <SessionProvider>
-    <Dashboard />
-  </SessionProvider>
+    <SessionProvider>
+      <Dashboard />
+    </SessionProvider>
   </>,
   document.getElementById("root")
 );

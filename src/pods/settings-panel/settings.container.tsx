@@ -6,12 +6,15 @@ export const SettingsContainer = () => {
     const sessionContext = React.useContext(SessionContext);
     const [refreshTimeout] = React.useState(sessionContext.refreshTimeout);
 
-    const handleRefreshTimeoutChange = (newValue:number) => {
+    const handleRefreshTimeoutChange = (newValue: number) => {
         sessionContext.updateRefreshTimeout(newValue);
     };
 
     return (
-        <SettingsComponent refreshTimeout={refreshTimeout} updateRefreshTimeout={handleRefreshTimeoutChange}/>
+        <SettingsComponent
+            refreshTimeout={refreshTimeout}
+            updateRefreshTimeout={handleRefreshTimeoutChange}
+        />
     )
 
 }

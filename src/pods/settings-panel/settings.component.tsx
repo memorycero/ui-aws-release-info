@@ -70,7 +70,7 @@ export const SettingsComponent = (props: Props) => {
 
     const [selectedOption] = React.useState(refreshTimeout);
 
-    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => 
+    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) =>
         updateRefreshTimeout(event.target.value as number);
 
     return (
