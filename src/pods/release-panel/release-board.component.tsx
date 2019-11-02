@@ -28,45 +28,28 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const ReleaseBoardComponent = (props: Props) => {
   const { releasesInPreparation, releasesOnWww1, releasesLive, releasesApproved } = props;
-  const classes = useStyles({});
 
   return (
     <>
-      {/* Headers */}
-      {buildHeaderComponent('In Preparation', classes.paper)}
-      {buildHeaderComponent('www1', classes.paper)}
-      {buildHeaderComponent('Live Deployment', classes.paper)}
-      {buildHeaderComponent('Approved', classes.paper)}
-      {/* In Preparation queue */}
-      {buildReleaseComponent(releasesInPreparation, 'asc')}
-      {/* WWW1 queue */}
-      {buildReleaseComponent(releasesOnWww1, 'asc')}
-      {/* Live Deploy queue */}
-      {buildReleaseComponent(releasesLive, 'asc')}
-      {/* Approved queue */}
-      {buildReleaseComponent(releasesApproved, 'desc')}
+      {buildReleasesColumn('In Preparation', releasesInPreparation, 'asc')}
+      {buildReleasesColumn('www1',  releasesOnWww1, 'asc')}
+      {buildReleasesColumn('Live Deployment', releasesLive, 'asc')}
+      {buildReleasesColumn('Approved', releasesApproved, 'desc')}
     </>
   )
 }
 
-const buildHeaderComponent = (stepName: string, paperClassName: string) => {
+const buildReleasesColumn = (stepName: string, releases: BoardReleaseInfo[], order: any) => {
+  const classes = useStyles({});
   return (
     <>
       <Grid item xs={12} md={4} lg={3}>
-        <Paper className={paperClassName}>
+        <Paper className={classes.paper}>
           <Typography variant="h6" color="primary" gutterBottom>
             {stepName}
           </Typography>
         </Paper>
-      </Grid>
-    </>
-  )
-}
-
-const buildReleaseComponent = (releases: BoardReleaseInfo[], order) => {
-  return (
-    <>
-      <Grid item xs={12} md={4} lg={3}>
+        <br />
         {orderBy(releases, ['releaseHeader.rt'], order).map(value => (
           <div key={value.releaseHeader.rt}>
             <BuildCardComponent buildHeader={value.releaseHeader} buildsSteps={value.releaseSteps} />

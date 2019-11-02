@@ -5,7 +5,7 @@ import { getInfo, lastWeekReleasesInfoUrl, upcomingReleaseInfoUrl, releaseInfoUr
 import { mapBuildsFromApiToVm, mapBuildFromApiToVm } from "./release-board.mapper";
 import { trackPromise } from "react-promise-tracker";
 import { LoadingSpinerComponent } from "components/spinner";
-import { orderBy } from "lodash";
+import { orderBy, reverse } from "lodash";
 import { SessionContext } from "core";
 
 export const ReleaseBoardContainer = () => {
@@ -115,12 +115,11 @@ const getOnlyApprovedReleases = (builds: BuildInfoVm[]): BoardReleaseInfo[] => {
 const createBoardReleaseInfo = (builds: BuildInfoVm[]): BoardReleaseInfo => {
     let stepsMap = new Map<ReleaseSteps, BuildInfoVm>();
 
-    orderBy(builds, ['build'], ['asc']).map(elem => {
+    orderByReleaseSteps(builds).map(elem => {
         stepsMap.set(elem.step, elem);
     });
 
-    let releaseSteps: BuildInfoVm[] = orderBy([...stepsMap.values()], ['build'], ['desc']);
-
+    let releaseSteps: BuildInfoVm[] = reverse(orderByReleaseSteps([...stepsMap.values()]));
     const lastStep = releaseSteps[0];
 
     let releaseHeader: ReleaseHeader = {
@@ -141,4 +140,12 @@ const getLastStepStatus = (lastStep: BuildInfoVm): string => {
         return 'WARN';
     }
     return lastStep.status;
+}
+
+const orderByReleaseSteps = (builds: BuildInfoVm[], ): BuildInfoVm[] => {
+    const order = [ReleaseSteps.StartRelease, ReleaseSteps.Build, ReleaseSteps.IntegrationLatestDump,
+    ReleaseSteps.IntegrationTests, ReleaseSteps.DeployTestSystem, ReleaseSteps.Live,
+    ReleaseSteps.Approve, ReleaseSteps.Cancel];
+
+    return builds.sort((a, b) => order.indexOf(a.step) - order.indexOf(b.step));
 }
