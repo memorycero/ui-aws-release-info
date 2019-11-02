@@ -1,0 +1,9 @@
+sudo: required
+services:
+  - docker
+script:
+ - docker build -t ui-aws-release-info .
+after_success:
+ - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+ - docker tag ui-aws-release-info $DOCKER_USER/ui-aws-release-info
+ - docker push $DOCKER_USER/ui-aws-release-info
