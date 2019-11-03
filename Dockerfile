@@ -1,10 +1,10 @@
-FROM node:latest
+FROM node:8.16.2-jessie
 
 WORKDIR /opt/app
 
 COPY . .
 
-RUN npm install --only=production
+RUN npm install --silent
 
 EXPOSE 8080
 
