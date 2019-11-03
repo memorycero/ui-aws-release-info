@@ -5,7 +5,8 @@ WORKDIR /opt/app
 COPY . .
 
 RUN npm install --silent
+RUN npm run build:prod
 
 EXPOSE 8080
 
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT ["npm", "run", "start:prod"]
