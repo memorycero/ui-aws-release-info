@@ -14,7 +14,7 @@ import WarningIcon from '@material-ui/icons/Warning';
 import CancelIcon from '@material-ui/icons/Cancel';
 import HelpIcon from '@material-ui/icons/Help';
 import { BuildInfoVm, ReleaseHeader } from "../release.vm";
-import { teamCityViewLog } from "core/const";
+import { teamCityViewLogUrl } from "core/const";
 
 interface Props {
   buildHeader: ReleaseHeader;
@@ -100,7 +100,7 @@ export const BuildCardComponent = (props: Props) => {
                       <div key={elem.id}>
                         <Grid item container spacing={2}>
                           <Grid item xs={9}>
-                            <Link href={`${teamCityViewLog}${elem.build}`} target="_blank" rel="noopener" variant="body1">
+                            <Link href={`${teamCityViewLogUrl}${elem.build}`} target="_blank" rel="noopener" variant="body1">
                               {elem.step}
                             </Link>
                           </Grid>
