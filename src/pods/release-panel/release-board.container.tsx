@@ -39,6 +39,8 @@ export const ReleaseBoardContainer = () => {
                             let boardReleaseInfo: BoardReleaseInfo = createBoardReleaseInfo(releaseSteps);
                             if (boardReleaseInfo.releaseHeader.lastStep === ReleaseSteps.DeployTestSystem) {
                                 setReleasesOnWww1(releasesOnWww1 => [...releasesOnWww1, boardReleaseInfo]);
+                            } else if(boardReleaseInfo.releaseHeader.lastStep === ReleaseSteps.Live){
+                                setReleasesLive(releasesLive => [...releasesLive, boardReleaseInfo]);
                             } else {
                                 setReleasesInPreparation(releasesInPreparation => [...releasesInPreparation, boardReleaseInfo]);
                             }

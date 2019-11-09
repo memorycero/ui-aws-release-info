@@ -13,13 +13,13 @@ export const mapBuildFromApiToVm = (buildsApi: BuildInfoApi): BuildInfoVm => {
         team: buildsApi.team,
         branch: buildsApi.branch,
         status: buildsApi.status,
-        step: getEnumValue(buildsApi.step),
+        step: getReleseStepEnumValue(buildsApi.step),
         id: buildsApi.id,
         build: buildsApi.build
     };
 };
 
-const getEnumValue = (stringValue:string):ReleaseSteps => {
+const getReleseStepEnumValue = (stringValue:string):ReleaseSteps => {
     switch (stringValue) {
         case "Start Release":
             return ReleaseSteps.StartRelease;

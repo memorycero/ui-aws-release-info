@@ -5,14 +5,16 @@ import Grid from '@material-ui/core/Grid';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-import { IconButton } from "@material-ui/core";
+import { IconButton, Link, Tooltip } from "@material-ui/core";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import WarningIcon from '@material-ui/icons/Warning';
+import CancelIcon from '@material-ui/icons/Cancel';
 import HelpIcon from '@material-ui/icons/Help';
 import { BuildInfoVm, ReleaseHeader } from "../release.vm";
+import { teamCityViewLog } from "core/const";
 
 interface Props {
   buildHeader: ReleaseHeader;
@@ -72,7 +74,9 @@ export const BuildCardComponent = (props: Props) => {
                 </Typography>
               </Grid>
               <Grid item xs={3}>
-                {returnStatusComponent(buildHeader.status)}
+                <Tooltip title={`${buildHeader.status}`}>
+                  {returnStatusComponent(buildHeader.status)}
+                </Tooltip>
               </Grid>
             </Grid>
           </Grid>
@@ -96,12 +100,14 @@ export const BuildCardComponent = (props: Props) => {
                       <div key={elem.id}>
                         <Grid item container spacing={2}>
                           <Grid item xs={9}>
-                            <Typography variant="body1">
-                              {elem.step}:
-                            </Typography>
+                            <Link href={`${teamCityViewLog}${elem.build}`} target="_blank" rel="noopener" variant="body1">
+                              {elem.step}
+                            </Link>
                           </Grid>
-                          <Grid item xs={3}>
-                            {returnStatusComponent(elem.status)}
+                          <Grid item xs={2}>
+                            <Tooltip title={`${elem.status}`}>
+                              {returnStatusComponent(elem.status)}
+                            </Tooltip>
                           </Grid>
                         </Grid>
                       </div>
@@ -124,9 +130,11 @@ const returnStatusComponent = (status: string) => {
     case 'SUCCESS':
       return <CheckCircleIcon htmlColor='green' />;
     case 'FAILURE':
-      return <ErrorIcon htmlColor='red'/>;
+      return <ErrorIcon htmlColor='red' />;
     case 'WARN':
       return <WarningIcon htmlColor='orange' />;
+    case 'CANCELED':
+      return <CancelIcon htmlColor='red' />;
     default:
       return <HelpIcon htmlColor='grey' />;
   }
