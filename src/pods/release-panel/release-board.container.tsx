@@ -117,7 +117,7 @@ const getOnlyApprovedReleases = (builds: BuildInfoVm[]): BoardReleaseInfo[] => {
 const createBoardReleaseInfo = (builds: BuildInfoVm[]): BoardReleaseInfo => {
     let stepsMap = new Map<ReleaseSteps, BuildInfoVm>();
 
-    orderByReleaseSteps(builds).map(elem => {
+    orderBy(builds, ['build'], ['asc']).map(elem => {
         stepsMap.set(elem.step, elem);
     });
 
